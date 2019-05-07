@@ -14,7 +14,8 @@ import android.widget.LinearLayout;
 import static android.os.Build.ID;
 
 public class G2 extends View {
-    int height, width;
+    float layheight, laywidth, columnno = 7, columnwidth, rowno = 25, rowwdith;
+    float startx, endx;
     int defaultWidth =  200, defaultHeight = 200;
     Paint gridPaint, fillPaint, textPaint;
 
@@ -49,29 +50,35 @@ public class G2 extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        width = MeasureSpec.getSize(widthMeasureSpec);
-        height = MeasureSpec.getSize(heightMeasureSpec);
+        laywidth = MeasureSpec.getSize(widthMeasureSpec);
+        layheight = MeasureSpec.getSize(heightMeasureSpec);
 
         switch (MeasureSpec.getMode(widthMeasureSpec)) {
             case MeasureSpec.UNSPECIFIED:
-                width = defaultWidth;
+                laywidth = defaultWidth;
                 break;
             case MeasureSpec.AT_MOST:
-                if (defaultWidth < width) width = defaultWidth;
+                if (defaultWidth < laywidth) laywidth = defaultWidth;
                 break;
         }
 
         switch (MeasureSpec.getMode(heightMeasureSpec)) {
             case MeasureSpec.UNSPECIFIED:
-                height = defaultHeight;
+                layheight = defaultHeight;
                 break;
             case MeasureSpec.AT_MOST:
-                if (defaultHeight < height) height = defaultHeight;
+                if (defaultHeight < layheight) layheight = defaultHeight;
                 break;
 
         }
-        Log.d("hashim", "height: "+height+" widht:"+width);
+        Log.d("hashim", "layheight: "+layheight+" laywidth:"+laywidth);
 
+        startx = (float) ((3.0/100)*laywidth);
+        endx = laywidth - startx;
+        columnwidth = (endx-startx)/columnno;
+
+        rowwdith = layheight/rowno;
+        
     }
 
 
@@ -79,8 +86,13 @@ public class G2 extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawCircle(width/2,width/2,width/3,gridPaint);
-    }
+        for(float i=endx; i>=startx; i-=columnwidth){
+            canvas.drawLine(i,0, i, layheight,gridPaint);
+        }
 
+         for(float i=0; i<=layheight; i+=rowwdith){
+             canvas.drawLine(0, i, endx, i, gridPaint);
+         }
+    }
 
 }
