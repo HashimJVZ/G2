@@ -11,20 +11,31 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 
+import java.util.List;
+
 import static android.os.Build.ID;
 
-public class G2 extends View {
+public class Graph extends View {
+
+    private List<Schedule> scheduleList;
+
     float layheight, laywidth, columnno = 7, columnwidth, rowno = 25, rowwidth;
     float startx, endx, dayx;
+
+    int b = 0; //day number eg:SUN=0, MON=1, SAT=6;
+    float starttime = 0;
+    float endtime = 0;
+
     int defaultWidth =  200, defaultHeight = 200;
     String[] a;
 
     {
-        a = new String[]{"NULL", "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
+        a = new String[]{"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
     }
 
     String hour, day;
     Paint gridPaint, fillPaint, textPaint;
+
 
     void init(){
         gridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -33,24 +44,25 @@ public class G2 extends View {
         fillPaint.setColor(Color.DKGRAY);
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setColor(Color.RED);
-//        textPaint.setTextSize(20);
+        textPaint.setTextSize(20);
     }
-    public G2(Context context) {
+    public Graph(Context context ) {
         super(context);
         init();
     }
 
-    public G2(Context context, AttributeSet attrs) {
+    public Graph(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public G2(Context context, AttributeSet attrs, int defStyleAttr) {
+    public Graph(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
+
     }
 
-    public G2(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public Graph(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
@@ -96,26 +108,58 @@ public class G2 extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        //drawing horizontal lines
         for(float i=endx; i>=startx; i-=columnwidth){
             canvas.drawLine(i,0, i, layheight,gridPaint);
         }
 
-        for(int i=1; i<=columnno; i++){
+        //setting days on top of every column
+        for(int i=0; i<columnno; i++){
             day = a[i];
-            canvas.drawText(day,columnwidth*i,rowwidth-5,textPaint);
+            canvas.drawText(day,startx+columnwidth*i+(columnwidth/3),rowwidth-10,textPaint);
         }
-        
+
+        //drawing vertical lines
         for(float i=0; i<=layheight; i+=rowwidth){
             canvas.drawLine(0, i, endx, i, gridPaint);
         }
 
+        //setting hours at starting of every row
         for(int i=0; i<=rowno; i++){
             if(i>1){
                 hour = String.valueOf(i-1);
-                canvas.drawText(hour, dayx,rowwidth*i-5, textPaint);
+                canvas.drawText(hour, dayx-8,rowwidth*i-5, textPaint);
             }
         }
 
+        if (scheduleList!=null) {
+            for (int i = 0; i < scheduleList.size(); i++) {
+
+                int d = scheduleList.get(i).getDay();
+                float s = scheduleList.get(i).getStarttime();
+                float e = scheduleList.get(i).getEndtime();
+
+                canvas.drawRect(startx+(columnwidth*d),rowwidth+s*rowwidth,
+                        startx+(columnwidth*(d+1)),rowwidth+e*rowwidth,fillPaint);
+            }
+
+            invalidate();
+
+        } else {
+            canvas.drawRect(startx+(columnwidth*b),rowwidth+starttime*rowwidth,
+                    startx+(columnwidth*(b+1)),rowwidth+endtime*rowwidth,fillPaint);
+
+        }
+
+
+
     }
 
+    /**
+     * Give list of days
+     * @param list list days
+     */
+    public void setSchedule(List<Schedule> list){
+        this.scheduleList = list;
+    }
 }
